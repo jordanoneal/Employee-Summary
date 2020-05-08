@@ -10,13 +10,120 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
+const employees = []
+
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
 
+
+let questions = [
+    {
+        type: "list",
+        message: "select employee role",
+        choices: ["manager", "engineer", "intern"],
+        name: "role"
+    },
+
+    {
+        type: "input",
+        message: "enter employee name",
+        name: "name"
+    },
+    {
+        type: "input",
+        message: "enter employee id",
+        name: "id"
+    },
+    {
+        type: "input",
+        message: "enter employee email",
+        name: "email"
+    },
+]
+
+async function promptEmployee() {
+
+    const { role, name, id, email } = await inquirer.prompt(questions)
+
+    switch (role) {
+        case "manager":
+            const { office } = await promptManager();
+            employees.push(new Manager(name, id, email, office))
+            break;
+        case "engineer":
+            const { github } = await promptEngineer();
+            employees.push(new Engineer(name, id, email, github))
+            break;
+        case "intern":
+            const { school } = await promptIntern();
+            employees.push(new Intern(name, id, email, school))
+            break;
+        default:
+            break;
+
+    }
+
+    const { addEmployee } = await inquirer.prompt({
+        type: "confirm",
+        message: "do you want to add another employee?",
+        name: "addEmployee"
+
+    })
+
+    if (addEmployee) {
+        return promptEmployee();
+    }
+    else {
+
+        const html = render(employees);
+        fs.writeFile(outputPath, html, (err) => {
+            if(err) {
+                throw err
+            }
+            console.log("Employee files have been created");
+        })
+
+    }
+}
+
+function promptEngineer() {
+    return inquirer.prompt([
+        {
+            type: "input",
+            message: "enter employee's github username",
+            name: "github"
+
+        }
+    ])
+}
+
+function promptIntern() {
+    return inquirer.prompt([
+        {
+            type: "input",
+            message: "enter school intern attends",
+            name: "school"
+        }
+    ])
+}
+
+function promptManager() {
+    return inquirer.prompt([
+        {
+            type: "input",
+            message: "enter manager office number",
+            name: "office"
+        }
+    ])
+}
+
+promptEmployee();
+
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
 // generate and return a block of HTML including templated divs for each employee!
+
 
 // After you have your html, you're now ready to create an HTML file using the HTML
 // returned from the `render` function. Now write it to a file named `team.html` in the
