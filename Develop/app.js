@@ -87,6 +87,9 @@ async function promptEmployee() {
     }
 }
 
+promptEmployee();
+
+//prompt question depending on role
 function promptEngineer() {
     return inquirer.prompt([
         {
@@ -117,8 +120,6 @@ function promptManager() {
         }
     ])
 }
-
-promptEmployee();
 
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
